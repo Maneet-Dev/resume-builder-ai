@@ -35,14 +35,28 @@ function EditResume() {
         setFormData({ ...formData, [field]: list });
     };
 
-    const addItem = (field) => {
-        const newItem =
-            field === 'skills' ? '' :
-            field === 'education' ? { college: '', degree: '', startYear: '', endYear: '' } :
-            { company: '', role: '', description: '', startDate: '', endDate: '' };
+    const handleProjectsChange = (index, field, value) => {
+    const list = [...formData.projects];
+    if (field === 'technologies') {
+      list[index][field] = value.split(',').map((tech) => tech.trim());
+    } else {
+      list[index][field] = value;
+    }
+    setFormData({ ...formData, projects: list });
+  };
 
-        setFormData({ ...formData, [field]: [...formData[field], newItem] });
-    };
+    const addItem = (field) => {
+    const newItem =
+      field === 'skills'
+        ? ''
+        : field === 'education'
+        ? { college: '', degree: '', startYear: '', endYear: '' }
+        : field === 'projects'
+        ? { title: '', technologies: [''], description: '' }
+        : { company: '', role: '', description: '', startDate: '', endDate: '' };
+
+    setFormData({ ...formData, [field]: [...formData[field], newItem] });
+  };
 
     const removeItem = (field, index) => {
         const list = [...formData[field]];
@@ -227,6 +241,56 @@ function EditResume() {
                         Add Education
                     </button>
                 </div>
+
+                <div>
+          <h3 className="text-xl font-semibold mb-2">Projects</h3>
+          {formData.projects.map((project, i) => (
+            <div key={i} className="space-y-2 mb-4 border border-gray-200 rounded p-4">
+              <input
+                type="text"
+                name="title"
+                placeholder="Project Title"
+                value={project.title}
+                onChange={(e) => handleProjectsChange(i, 'title', e.target.value)}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                name="technologies"
+                placeholder="Technologies (comma separated)"
+                value={project.technologies.join(', ')}
+                onChange={(e) => handleProjectsChange(i, 'technologies', e.target.value)}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                name="description"
+                placeholder="Project Description"
+                value={project.description}
+                onChange={(e) => handleProjectsChange(i, 'description', e.target.value)}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {formData.projects.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeItem('projects', i)}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => addItem('projects')}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Add Project
+          </button>
+        </div>
 
                 {!formData.isFresher && (
                     <div>

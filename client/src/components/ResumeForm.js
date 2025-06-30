@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function ResumeForm() {
+  const { templateId } = useParams();  
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,8 +13,10 @@ function ResumeForm() {
     summary: '',
     skills: [''],
     education: [{ college: '', degree: '', startYear: '', endYear: '' }],
+    projects: [{title:'',technologies:[''],description:''}],
     isFresher: false,
     experience: [{ company: '', role: '', description: '', startDate: '', endDate: '' }],
+    templateId: templateId || '',  
   });
 
   const handleChange = (e) => {
@@ -31,6 +35,12 @@ function ResumeForm() {
     setFormData({ ...formData, [field]: list });
   };
 
+  const handleTechChange = (projIndex, techIndex, value) => {
+    const updatedProjects = [...formData.projects];
+    updatedProjects[projIndex].technologies[techIndex] = value;
+    setFormData({ ...formData, projects: updatedProjects });
+  };
+
   const addItem = (field) => {
     if (field === 'skills') {
       setFormData({ ...formData, skills: [...formData.skills, ''] });
@@ -44,6 +54,11 @@ function ResumeForm() {
         ...formData,
         experience: [...formData.experience, { company: '', role: '', description: '', startDate: '', endDate: '' }],
       });
+    } else if (field === 'projects') {
+      setFormData({
+        ...formData,
+        projects: [...formData.projects, { title: '', technologies: [''], description: '' }],
+      });
     }
   };
 
@@ -51,6 +66,18 @@ function ResumeForm() {
     const list = [...formData[field]];
     list.splice(index, 1);
     setFormData({ ...formData, [field]: list });
+  };
+
+  const addTechnology = (projIndex) => {
+    const updatedProjects = [...formData.projects];
+    updatedProjects[projIndex].technologies.push('');
+    setFormData({ ...formData, projects: updatedProjects });
+  };
+
+  const removeTechnology = (projIndex, techIndex) => {
+    const updatedProjects = [...formData.projects];
+    updatedProjects[projIndex].technologies.splice(techIndex, 1);
+    setFormData({ ...formData, projects: updatedProjects });
   };
 
   const handleSubmit = async (e) => {
@@ -224,6 +251,68 @@ function ResumeForm() {
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Add Education
+          </button>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-semibold mb-2">Projects</h3>
+          {formData.projects.map((proj, i) => (
+            <div key={i} className="space-y-2 mb-4 border border-gray-200 rounded p-4">
+              <input
+                type="text"
+                name="title"
+                placeholder="Project Title"
+                value={proj.title}
+                onChange={(e) => handleArrayChange('projects', i, e)}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+              <textarea
+                name="description"
+                placeholder="Project Description"
+                value={proj.description}
+                onChange={(e) => handleArrayChange('projects', i, e)}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+              <div>
+                <label className="block font-medium text-gray-700">Technologies:</label>
+                {proj.technologies.map((tech, j) => (
+                  <div key={j} className="flex items-center mb-2">
+                    <input
+                      type="text"
+                      value={tech}
+                      onChange={(e) => handleTechChange(i, j, e.target.value)}
+                      className="flex-grow border border-gray-300 rounded px-3 py-2"
+                    />
+                    {proj.technologies.length > 1 && (
+                      <button type="button" onClick={() => removeTechnology(i, j)} className="ml-2 text-red-600">
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={() => addTechnology(i)} className="mt-2 text-blue-600">
+                  Add Technology
+                </button>
+              </div>
+              {formData.projects.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeItem('projects', i)}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 mt-2"
+                >
+                  Remove Project
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => addItem('projects')}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Add Project
           </button>
         </div>
 

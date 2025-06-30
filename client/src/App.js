@@ -6,17 +6,19 @@ import ResumeList from './components/ResumeList';
 import EditResume from './components/EditResume';
 import ResumePreview from './components/ResumePreview';
 import Navbar from './components/Navbar';
+import TemplateSelection from './components/TemplateSelection';
 
 function App() {
-  return( 
+  return (
     <Router>
-      <Navbar/>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/create" element={<ResumeForm />} />
+        <Route path="/create" element={<TemplateSelection />} />
+        <Route path="/create/form/:templateId" element={<ResumeForm />} />
         <Route path="/resumes" element={<ResumeList />} />
-        <Route path="/edit/:id" element={<EditResume />} /> 
-        <Route path="/preview/:id" element={<ResumePreview/>} />
+        <Route path="/edit/:id" element={<EditResume />} />
+        <Route path="/preview/:id" element={<ResumePreview />} />
       </Routes>
     </Router>
   );

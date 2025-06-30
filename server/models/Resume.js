@@ -14,6 +14,13 @@ const ResumeSchema = new mongoose.Schema({
             endYear: Number
         }
     ],
+    projects: [
+        {
+            title:String,
+            technologies:[String],
+            description:String
+        }
+    ],
     isFresher: {
         type: Boolean,
         default:false
@@ -26,7 +33,8 @@ const ResumeSchema = new mongoose.Schema({
             startDate:String,
             endDate:String
         }
-    ]   
+    ],
+    templateId: {type:String,default:'TemplateOne'},   
 }, { timestamps:true});
 
 module.exports = mongoose.model('Resume',ResumeSchema);

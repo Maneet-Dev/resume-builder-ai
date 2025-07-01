@@ -1,41 +1,39 @@
-// src/components/templates/TemplateOne.js
 import React from 'react';
 
 function TemplateOne({ resume }) {
   if (!resume) return null;
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-8 rounded shadow-lg font-sans text-gray-900">
+    <div className="w-[794px] h-[1123px] mx-auto bg-white p-10 rounded shadow-lg font-sans text-gray-900 overflow-hidden">
       {/* Header */}
-      <header className="border-b border-gray-300 pb-4 mb-6">
-        <h1 className="text-4xl font-bold">{resume.name}</h1>
-        <div className="flex space-x-6 mt-2 text-gray-600 text-sm">
-          <span>{resume.email}</span>
-          <span>{resume.phone}</span>
+      <header className="pb-6 mb-0 text-center">
+        <h1 className="text-4xl font-bold text-black uppercase tracking-wide">{resume.name}</h1>
+        <div className="mt-2 text-gray-700 text-sm space-y-1">
+          <p>{resume.email} <b>|</b> {resume.phone}</p>
         </div>
       </header>
 
       {/* Summary */}
       {resume.summary && (
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
             Summary
           </h2>
-          <p className="whitespace-pre-wrap">{resume.summary}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{resume.summary}</p>
         </section>
       )}
 
       {/* Skills */}
       {resume.skills && resume.skills.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
             Skills
           </h2>
-          <ul className="flex flex-wrap gap-3">
+          <ul className="flex flex-wrap gap-2 text-sm">
             {resume.skills.map((skill, index) => (
               <li
                 key={index}
-                className="bg-blue-600 text-white rounded px-3 py-1 text-sm"
+                className="bg-blue-200 text-black rounded-full px-3 py-1"
               >
                 {skill}
               </li>
@@ -47,11 +45,11 @@ function TemplateOne({ resume }) {
       {/* Education */}
       {resume.education && resume.education.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
             Education
           </h2>
           {resume.education.map((edu, index) => (
-            <div key={index} className="mb-3">
+            <div key={index} className="mb-3 text-sm">
               <p className="font-semibold">{edu.degree}</p>
               <p>
                 {edu.college} | {edu.startYear} - {edu.endYear}
@@ -64,16 +62,16 @@ function TemplateOne({ resume }) {
       {/* Projects */}
       {resume.projects && resume.projects.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
             Projects
           </h2>
           {resume.projects.map((project, index) => (
-            <div key={index} className="mb-4">
-              <p className="font-semibold text-lg">{project.title}</p>
-              <p className="italic text-sm text-gray-600 mb-1">
+            <div key={index} className="mb-4 text-sm">
+              <p className="font-semibold text-base">{project.title}</p>
+              <p className="italic text-xs text-gray-600 mb-1">
                 Technologies: {project.technologies.join(', ')}
               </p>
-              <p>{project.description}</p>
+              <p className="text-sm">{project.description}</p>
             </div>
           ))}
         </section>
@@ -82,17 +80,36 @@ function TemplateOne({ resume }) {
       {/* Experience */}
       {!resume.isFresher && resume.experience && resume.experience.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-2">
+          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
             Experience
           </h2>
           {resume.experience.map((exp, index) => (
-            <div key={index} className="mb-4">
-              <p className="font-semibold text-lg">{exp.role}</p>
+            <div key={index} className="mb-4 text-sm">
+              <p className="font-semibold text-base">{exp.role}</p>
               <p className="italic">{exp.company}</p>
-              <p className="text-sm text-gray-600 mb-1">
-                {exp.startDate} - {exp.endDate}
+              <p className="text-xs text-gray-600 mb-1">
+                {exp.startDate ? new Date(exp.startDate).toLocaleDateString() : ''} - {exp.endDate ? new Date(exp.endDate).toLocaleDateString() : 'Present'}
               </p>
               <p>{exp.description}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Certifications */}
+      {resume.certifications && resume.certifications.length > 0 && (
+        <section className="mb-6">
+          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
+            Certifications
+          </h2>
+          {resume.certifications.map((cert, i) => (
+            <div key={i} className="mb-3 text-sm">
+              <p className="font-semibold text-base">{cert.title}</p>
+              <p className="italic">{cert.issuer}</p>
+              <p className="text-xs text-gray-600">
+                {cert.startDate ? new Date(cert.startDate).toLocaleDateString() : ''} -{' '}
+                {cert.endDate ? new Date(cert.endDate).toLocaleDateString() : 'Present'}
+              </p>
             </div>
           ))}
         </section>

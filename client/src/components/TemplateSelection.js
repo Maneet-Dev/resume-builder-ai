@@ -3,9 +3,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const templates = [
-  { id: 'TemplateOne', name: 'Classic Blue' },
-  { id: 'TemplateTwo', name: 'Modern Green' },
-  { id: 'TemplateThree', name: 'Elegant Gray' },
+  { id: 'TemplateOne', name: 'Classic' },
+  { id: 'TemplateTwo', name: 'Modern' },
+  { id: 'TemplateThree', name: 'Elegant' },
 ];
 
 function TemplateSelection() {

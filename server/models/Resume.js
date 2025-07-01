@@ -34,6 +34,15 @@ const ResumeSchema = new mongoose.Schema({
             endDate:String
         }
     ],
+    certifications: [
+        {
+            title:{type: String, required: true},
+            issuer:{type: String, required: true},
+            startDate:String,
+            endDate:String
+
+        }
+    ],
     templateId: {type:String,default:'TemplateOne'},   
 }, { timestamps:true});
 

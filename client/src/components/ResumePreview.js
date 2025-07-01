@@ -91,7 +91,21 @@ function ResumePreview() {
             </section>
           )}
 
-          
+          {/* Certifications */}
+          {resume.certifications && resume.certifications.length > 0 && (
+            <section className="mb-6">
+              <h3 className="text-2xl font-semibold mb-2 border-b border-gray-300 pb-1">Certifications</h3>
+              {resume.certifications.map((cert, i) => (
+                <div key={i} className="mb-4">
+                  <p className="font-semibold">{cert.title}</p>
+                  <p>{cert.issuer}</p>
+                  <p className="text-sm text-gray-600">{cert.startDate} - {cert.endDate}</p>
+                </div>
+              ))}
+            </section>
+          )}
+
+
           <Link
             to="/resumes"
             className="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"

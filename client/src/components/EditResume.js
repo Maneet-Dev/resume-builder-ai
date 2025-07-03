@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
+const formatCategoryName = (category) => {
+    const spaced = category.replace(/([A-Z])/g, ' $1');
+    return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+};
+
 function EditResume() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -16,27 +21,34 @@ function EditResume() {
 
 
     useEffect(() => {
-  const fetchResume = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/api/resumes/${id}`);
-      
-      const data = {
-        certifications: [],
-        experience: [],
-        skills: [],
-        education: [],
-        projects: [],
-        ...res.data,  
-      };
-      setFormData(data);
-    } catch (err) {
-      setError('Failed to load resume');
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchResume();
-}, [id]);
+        const fetchResume = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/api/resumes/${id}`);
+
+                const data = {
+                    certifications: [],
+                    experience: [],
+                    skills: {
+                        programmingLanguages: [''],
+                        frameworks: [''],
+                        webTechnologies: [''],
+                        databases: [''],
+                        tools: [''],
+                        ...res.data.skills,
+                    },
+                    education: [],
+                    projects: [],
+                    ...res.data,
+                };
+                setFormData(data);
+            } catch (err) {
+                setError('Failed to load resume');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchResume();
+    }, [id]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -60,6 +72,18 @@ function EditResume() {
         setFormData({ ...formData, projects: list });
     };
 
+    const handleSkillChange = (category, index, value) => {
+        const updatedCategory = [...formData.skills[category]];
+        updatedCategory[index] = value;
+        setFormData({
+            ...formData,
+            skills: {
+                ...formData.skills,
+                [category]: updatedCategory,
+            },
+        });
+    };
+
     const addItem = (field) => {
         let newItem;
         if (field === 'skills') {
@@ -78,10 +102,32 @@ function EditResume() {
         setFormData({ ...formData, [field]: [...formData[field], newItem] });
     };
 
+    const addSkill = (category) => {
+        setFormData({
+            ...formData,
+            skills: {
+                ...formData.skills,
+                [category]: [...formData.skills[category], ''],
+            },
+        });
+    };
+
     const removeItem = (field, index) => {
         const list = [...formData[field]];
         list.splice(index, 1);
         setFormData({ ...formData, [field]: list });
+    };
+
+    const removeSkill = (category, index) => {
+        const updatedCategory = [...formData.skills[category]];
+        updatedCategory.splice(index, 1);
+        setFormData({
+            ...formData,
+            skills: {
+                ...formData.skills,
+                [category]: updatedCategory,
+            },
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -183,37 +229,48 @@ function EditResume() {
 
                 <div>
                     <h3 className="text-xl font-semibold mb-2">Skills</h3>
-                    {formData.skills.map((skill, i) => (
-                        <div key={i} className="flex items-center space-x-2 mb-2">
-                            <input
-                                type="text"
-                                value={skill}
-                                onChange={(e) => {
-                                    const newSkills = [...formData.skills];
-                                    newSkills[i] = e.target.value;
-                                    setFormData({ ...formData, skills: newSkills });
-                                }}
-                                required
-                                className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            {formData.skills.length > 1 && (
+
+                    {Object.entries(formData.skills).map(([category, skillsArr]) => {
+                        
+                        const hasEmptySkill = Array.isArray(skillsArr) && skillsArr.some(skill => skill.trim() === '');
+
+
+                        return (
+                            <div key={category} className="mb-6">
+                                <h4 className="font-semibold mb-2">{formatCategoryName(category)}</h4>
+                                {skillsArr.map((skill, i) => (
+                                    <div key={i} className="flex items-center space-x-2 mb-2">
+                                        <input
+                                            type="text"
+                                            value={skill}
+                                            onChange={(e) => handleSkillChange(category, i, e.target.value)}
+                                            required
+                                            className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder={`Enter a ${formatCategoryName(category).toLowerCase()}`}
+                                        />
+                                        {skillsArr.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeSkill(category, i)}
+                                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                                aria-label={`Remove ${formatCategoryName(category)} skill`}
+                                            >
+                                                Remove
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
                                 <button
                                     type="button"
-                                    onClick={() => removeItem('skills', i)}
-                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                    onClick={() => addSkill(category)}
+                                    className={`px-4 py-2 rounded text-white ${hasEmptySkill ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                                    disabled={hasEmptySkill}
                                 >
-                                    Remove
+                                    Add {formatCategoryName(category)}
                                 </button>
-                            )}
-                        </div>
-                    ))}
-                    <button
-                        type="button"
-                        onClick={() => addItem('skills')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                        Add Skill
-                    </button>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 <div>

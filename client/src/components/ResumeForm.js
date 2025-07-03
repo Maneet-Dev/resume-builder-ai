@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
+const formatCategoryName = (category) => {
+  const spaced = category.replace(/([A-Z])/g, ' $1');
+        return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+};
+
 function ResumeForm() {
   const { templateId } = useParams();
   const navigate = useNavigate();
@@ -11,7 +16,13 @@ function ResumeForm() {
     email: '',
     phone: '',
     summary: '',
-    skills: [''],
+    skills: {
+      programmingLanguages: [''],
+      frameworks: [''],
+      webTechnologies: [''],
+      databases: [''],
+      tools: ['']
+    },
     education: [{ college: '', degree: '', startYear: '', endYear: '' }],
     projects: [{ title: '', technologies: [''], description: '' }],
     isFresher: false,
@@ -36,6 +47,18 @@ function ResumeForm() {
     setFormData({ ...formData, [field]: list });
   };
 
+  const handleSkillChange = (category, index, value) => {
+    const updatedCategory = [...formData.skills[category]];
+    updatedCategory[index] = value;
+    setFormData({
+      ...formData,
+      skills: {
+        ...formData.skills,
+        [category]: updatedCategory,
+      },
+    });
+  };
+
   const handleTechChange = (projIndex, techIndex, value) => {
     const updatedProjects = [...formData.projects];
     updatedProjects[projIndex].technologies[techIndex] = value;
@@ -43,9 +66,7 @@ function ResumeForm() {
   };
 
   const addItem = (field) => {
-    if (field === 'skills') {
-      setFormData({ ...formData, skills: [...formData.skills, ''] });
-    } else if (field === 'education') {
+    if (field === 'education') {
       setFormData({
         ...formData,
         education: [...formData.education, { college: '', degree: '', startYear: '', endYear: '' }],
@@ -68,6 +89,16 @@ function ResumeForm() {
     }
   };
 
+  const addSkill = (category) => {
+    setFormData({
+      ...formData,
+      skills: {
+        ...formData.skills,
+        [category]: [...formData.skills[category], ''],
+      },
+    });
+  };
+
   const removeItem = (field, index) => {
     const list = [...formData[field]];
     list.splice(index, 1);
@@ -86,28 +117,40 @@ function ResumeForm() {
     setFormData({ ...formData, projects: updatedProjects });
   };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const dataToSend = {
-    skills: [],
-    education: [],
-    projects: [],
-    experience: [],
-    certifications: [],
-    ...formData,
+  const removeSkill = (category, index) => {
+    const updatedCategory = [...formData.skills[category]];
+    updatedCategory.splice(index, 1);
+    setFormData({
+      ...formData,
+      skills: {
+        ...formData.skills,
+        [category]: updatedCategory,
+      },
+    });
   };
 
-  try {
-    const res = await axios.post('http://localhost:5000/api/resumes', dataToSend);
-    console.log('Resume saved', res.data);
-    alert('Resume saved successfully');
-    navigate('/resumes');
-  } catch (err) {
-    console.error('Error saving resume', err);
-    alert('Failed to save resume. Please try again');
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const dataToSend = {
+      skills: [],
+      education: [],
+      projects: [],
+      experience: [],
+      certifications: [],
+      ...formData,
+    };
+
+    try {
+      const res = await axios.post('http://localhost:5000/api/resumes', dataToSend);
+      console.log('Resume saved', res.data);
+      alert('Resume saved successfully');
+      navigate('/resumes');
+    } catch (err) {
+      console.error('Error saving resume', err);
+      alert('Failed to save resume. Please try again');
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow-md mt-8">
@@ -173,39 +216,51 @@ function ResumeForm() {
           </label>
         </div>
 
+
         <div>
-          <h3 className="text-xl font-semibold mb-2">Skills</h3>
-          {formData.skills.map((skill, i) => (
-            <div key={i} className="flex items-center space-x-2 mb-2">
-              <input
-                type="text"
-                value={skill}
-                onChange={(e) => {
-                  const newSkills = [...formData.skills];
-                  newSkills[i] = e.target.value;
-                  setFormData({ ...formData, skills: newSkills });
-                }}
-                required
-                className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {formData.skills.length > 1 && (
+          <h3 className="text-xl font-semibold mb-4">Skills</h3>
+
+          {Object.entries(formData.skills).map(([category, skillsArr]) => {
+            // Check if there's any empty skill input to disable the Add button
+            const hasEmptySkill = skillsArr.some(skill => skill.trim() === '');
+
+            return (
+              <div key={category} className="mb-6">
+                <h4 className="font-semibold mb-2">{formatCategoryName(category)}</h4>
+                {skillsArr.map((skill, i) => (
+                  <div key={i} className="flex items-center space-x-2 mb-2">
+                    <input
+                      type="text"
+                      value={skill}
+                      onChange={(e) => handleSkillChange(category, i, e.target.value)}
+                      required
+                      className="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder={`Enter a ${formatCategoryName(category).toLowerCase()}`}
+                    />
+                    {skillsArr.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeSkill(category, i)}
+                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                        aria-label={`Remove ${formatCategoryName(category)} skill`}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
                 <button
                   type="button"
-                  onClick={() => removeItem('skills', i)}
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  onClick={() => addSkill(category)}
+                  className={`px-4 py-2 rounded text-white ${hasEmptySkill ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  disabled={hasEmptySkill}
                 >
-                  Remove
+                  Add {formatCategoryName(category)}
                 </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => addItem('skills')}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Add Skill
-          </button>
+              </div>
+            );
+          })}
         </div>
 
         <div>
@@ -407,64 +462,61 @@ function ResumeForm() {
 
         <div>
           <h3 className="text-xl font-semibold mb-2">Certifications</h3>
-          {formData.certifications.length === 0 && (
-            <button
-              type="button"
-              onClick={() => addItem('certifications')}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mb-4"
-            >
-              Add Certification
-            </button>
-          )}
 
-          {formData.certifications.length > 0 &&
-            formData.certifications.map((cert, i) => (
-              <div key={i} className="space-y-2 mb-4 border border-gray-200 rounded p-4">
+          {formData.certifications.map((cert, i) => (
+            <div key={i} className="space-y-2 mb-4 border border-gray-200 rounded p-4">
+              {/* Certification input fields */}
+              <input
+                type="text"
+                name="title"
+                placeholder="Certification Title"
+                value={cert.title}
+                onChange={(e) => handleArrayChange('certifications', i, e)}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+              <input
+                type="text"
+                name="issuer"
+                placeholder="Issuer"
+                value={cert.issuer}
+                onChange={(e) => handleArrayChange('certifications', i, e)}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+              <div className="flex space-x-2">
                 <input
-                  type="text"
-                  name="title"
-                  placeholder="Certification Title"
-                  value={cert.title}
+                  type="date"
+                  name="startDate"
+                  value={cert.startDate}
                   onChange={(e) => handleArrayChange('certifications', i, e)}
-                  required
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border border-gray-300 rounded px-3 py-2"
                 />
                 <input
-                  type="text"
-                  name="issuer"
-                  placeholder="Issuer"
-                  value={cert.issuer}
+                  type="date"
+                  name="endDate"
+                  value={cert.endDate}
                   onChange={(e) => handleArrayChange('certifications', i, e)}
-                  required
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border border-gray-300 rounded px-3 py-2"
                 />
-                <div className="flex space-x-2">
-                  <input
-                    type="date"
-                    name="startDate"
-                    placeholder="Start Date"
-                    value={cert.startDate}
-                    onChange={(e) => handleArrayChange('certifications', i, e)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    type="date"
-                    name="endDate"
-                    placeholder="End Date"
-                    value={cert.endDate}
-                    onChange={(e) => handleArrayChange('certifications', i, e)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeItem('certifications', i)}
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Remove Certification
-                </button>
               </div>
-            ))}
+              <button
+                type="button"
+                onClick={() => removeItem('certifications', i)}
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Remove Certification
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => addItem('certifications')}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Add Certification
+          </button>
         </div>
 
         <div className="text-center">
@@ -475,8 +527,8 @@ function ResumeForm() {
             Save Resume
           </button>
         </div>
-      </form>
-    </div>
+      </form >
+    </div >
   );
 }
 

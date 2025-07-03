@@ -5,7 +5,13 @@ const ResumeSchema = new mongoose.Schema({
     email:String,
     phone:String,
     summary:String,
-    skills:[String],
+    skills: {
+        programmingLanguages:[String],
+        frameworks:[String],
+        webTechnologies:[String],
+        databases:[String],
+        tools:[String]
+    },
     education: [
         {
             college: String,

@@ -1,10 +1,15 @@
 import React from 'react';
 
+const formatCategoryName = (category) => {
+  const spaced = category.replace(/([A-Z])/g, ' $1');
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+};
+
 function TemplateOne({ resume }) {
   if (!resume) return null;
 
   return (
-    <div className="w-[794px] h-[1123px] mx-auto bg-white p-10 rounded shadow-lg font-sans text-gray-900 overflow-hidden">
+    <div className="w-[794px] h-[1123px] mx-auto bg-white p-10 rounded shadow-lg font-sans text-gray-900 overflow-auto">
       {/* Header */}
       <header className="pb-6 mb-0 text-center">
         <h1 className="text-4xl font-bold text-black uppercase tracking-wide">{resume.name}</h1>
@@ -20,25 +25,6 @@ function TemplateOne({ resume }) {
             Summary
           </h2>
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{resume.summary}</p>
-        </section>
-      )}
-
-      {/* Skills */}
-      {resume.skills && resume.skills.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
-            Skills
-          </h2>
-          <ul className="flex flex-wrap gap-2 text-sm">
-            {resume.skills.map((skill, index) => (
-              <li
-                key={index}
-                className="bg-blue-200 text-black rounded-full px-3 py-1"
-              >
-                {skill}
-              </li>
-            ))}
-          </ul>
         </section>
       )}
 
@@ -92,6 +78,32 @@ function TemplateOne({ resume }) {
               </p>
               <p>{exp.description}</p>
             </div>
+          ))}
+        </section>
+      )}
+
+      {/* Skills */}
+      {resume.skills && typeof resume.skills === 'object' && (
+        <section className="mb-6">
+          <h2 className="text-lg font-bold text-black border-b border-gray-300 pb-1 mb-3 uppercase">
+            Skills
+          </h2>
+
+          {Object.entries(resume.skills).map(([category, skillList]) => (
+            Array.isArray(skillList) && skillList.length > 0 ? (
+              <div key={category} className="mb-2">
+                <h3 className="text-sm font-semibold mb-1">
+                  {category.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                </h3>
+                <ul className="flex flex-wrap gap-2 text-sm">
+                  {skillList.map((skill, index) => (
+                    <li key={index} className="bg-blue-200 text-black rounded-full px-3 py-1">
+                      {skill}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null
           ))}
         </section>
       )}

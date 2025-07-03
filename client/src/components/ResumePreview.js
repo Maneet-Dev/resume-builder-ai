@@ -47,11 +47,18 @@ function ResumePreview() {
 
           <section className="mb-6">
             <h3 className="text-2xl font-semibold mb-2 border-b border-gray-300 pb-1">Skills</h3>
-            <ul className="list-disc list-inside space-y-1">
-              {resume.skills.map((skill, i) => (
-                <li key={i}>{skill}</li>
-              ))}
-            </ul>
+            {Object.entries(resume.skills).map(([category, skillList]) =>
+              Array.isArray(skillList) && skillList.length > 0 ? (
+                <div key={category} className="mb-3">
+                  <p className="font-semibold capitalize">{category.replace(/([A-Z])/g, ' $1')}</p>
+                  <ul className="list-disc list-inside ml-4 text-sm text-gray-800">
+                    {skillList.map((skill, idx) => (
+                      <li key={idx}>{skill}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null
+            )}
           </section>
 
           <section className="mb-6">

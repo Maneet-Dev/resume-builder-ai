@@ -1,16 +1,21 @@
 const mongoose = require('mongoose');
 
 const ResumeSchema = new mongoose.Schema({
-    name:String,
-    email:String,
-    phone:String,
-    summary:String,
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,   
+    },
+    name: String,
+    email: String,
+    phone: String,
+    summary: String,
     skills: {
-        programmingLanguages:[String],
-        frameworks:[String],
-        webTechnologies:[String],
-        databases:[String],
-        tools:[String]
+        programmingLanguages: [String],
+        frameworks: [String],
+        webTechnologies: [String],
+        databases: [String],
+        tools: [String]
     },
     education: [
         {
@@ -22,34 +27,33 @@ const ResumeSchema = new mongoose.Schema({
     ],
     projects: [
         {
-            title:String,
-            technologies:[String],
-            description:String
+            title: String,
+            technologies: [String],
+            description: String
         }
     ],
     isFresher: {
         type: Boolean,
-        default:false
+        default: false
     },
     experience: [
         {
-            company:String,
-            role:String,
-            description:String,
-            startDate:String,
-            endDate:String
+            company: String,
+            role: String,
+            description: String,
+            startDate: String,
+            endDate: String
         }
     ],
     certifications: [
         {
-            title:{type: String, required: true},
-            issuer:{type: String, required: true},
-            startDate:String,
-            endDate:String
-
+            title: { type: String, required: true },
+            issuer: { type: String, required: true },
+            startDate: String,
+            endDate: String
         }
     ],
-    templateId: {type:String,default:'TemplateOne'},   
-}, { timestamps:true});
+    templateId: { type: String, default: 'TemplateOne' },
+}, { timestamps: true });
 
-module.exports = mongoose.model('Resume',ResumeSchema);
+module.exports = mongoose.model('Resume', ResumeSchema);

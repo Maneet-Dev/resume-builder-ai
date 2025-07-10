@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const formatCategoryName = (category) => {
     const spaced = category.replace(/([A-Z])/g, ' $1');
@@ -18,12 +19,15 @@ function EditResume() {
         { id: 'TemplateTwo', name: 'Modern' },
         { id: 'TemplateThree', name: 'Elegant' },
     ];
+    const {token} = useContext(AuthContext);
 
 
     useEffect(() => {
         const fetchResume = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/resumes/${id}`);
+                const res = await axios.get(`http://localhost:5000/api/resumes/${id}`, {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
 
                 const data = {
                     certifications: [],
@@ -48,7 +52,7 @@ function EditResume() {
             }
         };
         fetchResume();
-    }, [id]);
+    }, [id, token]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -133,7 +137,9 @@ function EditResume() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`http://localhost:5000/api/resumes/${id}`, formData);
+            await axios.put(`http://localhost:5000/api/resumes/${id}`, formData, {
+                headers: {Authorization: `Bearer ${token}`},
+            });
             alert('Resume updated successfully');
             navigate('/resumes');
         } catch (err) {

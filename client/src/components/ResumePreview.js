@@ -1,22 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import html2pdf from 'html2pdf.js';
 import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
-
+import { AuthContext } from '../context/AuthContext';
 import TemplateOne from './templates/TemplateOne';
 import TemplateTwo from './templates/TemplateTwo';
 
+
 function ResumePreview() {
   const { id } = useParams();
+  const { token } = useContext(AuthContext);
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const resumeRef = useRef();
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+  };
+
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/resumes/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/resumes/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setResume(res.data);
       } catch (err) {
         setError('Failed to load resume');
@@ -24,8 +34,8 @@ function ResumePreview() {
         setLoading(false);
       }
     };
-    fetchResume();
-  }, [id]);
+    if(token) fetchResume();
+  }, [id, token]);
 
   const handleDownload = () => {
     if (!resumeRef.current) return;

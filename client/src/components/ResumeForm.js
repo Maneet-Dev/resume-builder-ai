@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const formatCategoryName = (category) => {
   const spaced = category.replace(/([A-Z])/g, ' $1');
@@ -10,6 +11,7 @@ const formatCategoryName = (category) => {
 function ResumeForm() {
   const { templateId } = useParams();
   const navigate = useNavigate();
+  const {token} = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -142,7 +144,12 @@ function ResumeForm() {
     };
 
     try {
-      const res = await axios.post('http://localhost:5000/api/resumes', dataToSend);
+      const res = await axios.post('http://localhost:5000/api/resumes', dataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       console.log('Resume saved', res.data);
       alert('Resume saved successfully');
       navigate('/resumes');
